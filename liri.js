@@ -42,84 +42,75 @@ function concertThis(){
     console.log(`Searching for ${userInput}'s show..`);
 
     axios.get("https://rest.bandsintown.com/artists/" + userInput + "/events?app_id="
-     + bandsInTown, function(err, body){
-        if(!err){
-            var userBand = JSON.parse(body);
+     + bandsInTown)
+     .then(function(response){
 
-            if (userBand.length > 0){
-                for(i = 0; i < 1; i++) {
-                    console.log(`Artist: ${userBand[i].lineup[0]} 
-                    Venue: ${userBand.[i].venue.name} 
-                    Location: ${userBand[i].venue.latitude}, ${userBand[i].venue.longitude}
-                    City: ${userBand[i].venue.city}, ${userBand[i].venue.country}`);
-
-                    var concertDate = moment(userBand[i].datetime).format("MM/DD/YYYY hh:00 A");
-                    console.log(`Date and Time: ${concertDate}---`);
-                };
+            if (response.data.length <= 0) {
+                console.log("Band or concert not found!");
+            
             }
             else{
-                console.log("Band or concert not found!");
+                for (var i = 0; i < response.data.length; i++){
+
+                    console.log(`Artist: ${response.data[i].lineup[0]} 
+                    Venue: ${response.data[i].venue.name} 
+                    Location: ${response.data[i].venue.city}, ${response.data[i].venue.country}`);
+                    
+                    var concertDate = moment(response.data[i].datetime).format("MM/DD/YYYY hh:00 A");
+                    console.log(`Date and Time: ${concertDate}---`);
+                };
+           
             };
-        };
     });
 };
 
 
 function spotifyThisSong(){
-    if(userInput === undefined){
-        userInput = `"The Sign" Ace of Base`
+    if(!userInput){
+        userInput = "The Sign";
     }
     console.log(`spotify this song: ${userInput}`);
     spotify.search({
         type: "track",
-        query: userInput,
-        limit: 1,
+        query: userInput
     }, function (err, data){
         if(err){
-            return console.log("Error occured: " + err);
+            console.log("Error occured: " + err);
+            return;
         }
-        var music = data.tracks.items[i];
-        
-        for(i=0; i < spotifyThisSong.length; i++){
+        var music = data.tracks.items;
 
             console.log(`
-            Artist: ${music.album.artist[0].name}
-            Song: ${music.name}
-            Album: ${music.album.name}
-            Spotify Link: ${music.external_urls.spotify}
+            Artist: ${music[0].artists[0].name}
+            Song: ${music[0].name}
+            Album: ${music[0].album.name}
+            Spotify Link: ${music[0].external_urls.spotify}
             ------`)
-        };
+       
     });
 };
 
 function movieThis(){
-    console.log(`Searching for ${userInput}..`);
+    
     if (!userInput){
         userInput = "Mr Nobdy";
-    };
+    }
 
-    axios.get("http://www.omdbapi.com/?t=" + userInput + "&apikey=trilogy", function(err, response, body){
-        var userMovie = JSON.parse(body);
-
-        var ratingsArr = userMovie.Ratings;
-        if (ratingsArr.length >2){
-
-        };
-        if (!err){
-            console.log(`Title: ${userMovie}
-            Released Date: ${userMovie.Year}
-            IMDB Rating: ${userMovie.imdbRating}
-            Rotten Tomatoes: ${userMovie.Ratings[1].Value}
-            Country: ${userMovie.Country}
-            Language: ${userMovie.Language}
-            Plot: ${userMovie.Plot}
-            Cast: ${userMovie.Actors}`)
-        }
-        else{
-            return console.log("Movie was not able to be found. Error:" + err);
-        };
-
-    });
+    axios.get("http://www.omdbapi.com/?t=" + userInput + "&apikey=trilogy")
+    .then(function(response){
+        
+            console.log(`Searching for ${userInput}..`);
+            console.log(`Title: ${response.data.Title}
+            Released Date: ${response.data.Year}
+            IMDB Rating: ${response.data.imdbRating}
+            Rotten Tomatoes: ${response.data.Ratings[1].Value}
+            Country: ${response.data.Country}
+            Language: ${response.data.Language}
+            Plot: ${response.data.Plot}
+            Cast: ${response.data.Actors}`)
+        
+           
+        });
 };
 
 function doWhat(){
